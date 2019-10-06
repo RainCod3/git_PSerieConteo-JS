@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Nodo de prueba en puerto serie</title>
+  </head>
+
+  <body>
+    <h1>Nodo de datos</h1>
+
+    <!-- <textarea name="Mi texto" rows="20" cols="30">Escribe aqui...</textarea>
+    <input type="submit" name="submit" value="SEND"> -->
+    <h2>Prueba de texto</h2>
+    <!-- Crea un cuadro de texto -->
+    <textarea name="name" rows="10" cols="30" id = "MiTexto"></textarea>
+
+    <h2>Archivo a guardar</h2>
+    <tr>
+      <td> Nombre de archivo: </td>
+      <td> <input type="text" name="" value="" id="txtArchivo"> </td>
+      <td><button onclick="saveTextAsFile()">Guardar archivo</button></td>
+    </tr>
+
+    <!-- <input type="button" name="" value="clic" onclick="texto();"> -->
+    <h2>Gráfica</h2>
+    <canvas id="MyCanvas"></canvas>
+
+    <!-- CDN del grafico de JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" charset="utf-8"></script>
+    <!-- Biblioteca de socket.io para el cliente -->
+    <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+
+    <script>
+
+	  var conversion = 9.81 / 64;
+      let counter = 0;
+      const socket = io();      // Manera de declararlo para el cliente
+      socket.on('board:data', function (dataSerial) {
+        // console.log(data);
+        MyCanvas.data.labels.push(counter);
+        MyCanvas.data.datasets.forEach(dataset => {
+          dataset.data.push(dataSerial.value * conversion);   // despliega datos y los convierte a [m/s^2] basado en 2g
+        });
+        counter++;
+        MyCanvas.update();
+        document.getElementById("MiTexto").value += (dataSerial.value*conversion) + '\n';  // Agrega datos al area de texto en HTML
+      });
+
+      var ctx = document.getElementById("MyCanvas");
+      var MyCanvas = new Chart(ctx, {
+          type: 'line',
+          data: {
+            //  labels: ["serial"],
+              datasets: [{
+                  label: 'Serial',
+                  labels: ('serialport'),
+                  data: [],
+                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                  borderColor: 'rgba(255,99,132,1)',
+                  data: []
+              }]
+          },
+          options: {}
+      });
+
+      // -------------- Script de guardado de archivo -------------------
+      function saveTextAsFile()
+      {
+      // grab the content of the form field and place it into a variable
+          // var textToWrite = document.getElementById("inputTextToSave").value;
+          var textToWrite = document.getElementById("MiTexto").value;
+      //  create a new Blob (html5 magic) that conatins the data from your form feild
+          var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+      // Specify the name of the file to be saved
+          // var fileNameToSaveAs = "myNewFile.txt";
+          if (txtArchivo.value === '')
+          {
+            alert("No hay nombre de archivo, baboso!!!")
+          }
+          else {
+          var fileNameToSaveAs = txtArchivo.value + ".txt";
+
+      // Optionally allow the user to choose a file name by providing
+      // an imput field in the HTML and using the collected data here
+      // var fileNameToSaveAs = txtFileName.text;
+
+      // create a link for our script to 'click'
+          var downloadLink = document.createElement("a");
+      //  supply the name of the file (from the var above).
+      // you could create the name here but using a var
+      // allows more flexability later.
+          downloadLink.download = fileNameToSaveAs;
+      // provide text for the link. This will be hidden so you
+      // can actually use anything you want.
+          downloadLink.innerHTML = "My Hidden Link";
+
+      // allow our code to work in webkit & Gecko based browsers
+      // without the need for a if / else block.
+          window.URL = window.URL || window.webkitURL;
+
+      // Create the link Object.
+          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+      // when link is clicked call a function to remove it from
+      // the DOM in case user wants to save a second file.
+          downloadLink.onclick = destroyClickedElement;
+      // make sure the link is hidden.
+          downloadLink.style.display = "none";
+      // add the link to the DOM
+          document.body.appendChild(downloadLink);
+
+      // click the new link
+          downloadLink.click();
+        }
+      }
+
+      function destroyClickedElement(event)
+      {
+      // remove the link from the DOM
+          document.body.removeChild(event.target);
+      }
+      // ---------------- EOF -------------------
+
+    </script>
+  </body>
+</html>
