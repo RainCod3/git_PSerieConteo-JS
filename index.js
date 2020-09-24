@@ -11,7 +11,7 @@ const http = require('http');     // modulo WEB (declaracion de biblioteca)
 
 const server = http.createServer(app);     // Se vincula la web con el Server
 
-const io = socketIO.listen(server);   // vicula el servidor con los sockets
+const io = socketIO.listen(server);   // vincula el servidor con los sockets
 
 io.on('connection', function (socket) {
   console.log('>>Nuevo usuario conectado');
@@ -34,7 +34,7 @@ const pserie = require('serialport');  // declara la biblioteca de funciones
 const Readline = pserie.parsers.Readline;  // Desde puerto serie, lee una linea y la almacena en Readline (etiqueta de instruccion)
 // const Ready = pserie.parsers.Ready;
 // const Delimiter = pserie.parsers.Delimiter;
-const MyPserie = new pserie('COM10', {
+const MyPserie = new pserie('COM1', {
   baudRate: 9600
 });     // Funcion de configuracion de puerto serie
 // const parser = MyPserie.pipe(new Ready({ delimiter: 'MX' })).pipe(new Readline({ delimiter: '\n\r' }));
